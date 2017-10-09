@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo Updating stuff!
+echo First up: apt-get upgrade
+
+sudo apt-get update
+sudo apt-get upgrade
+
+echo Now its nextclouds turn to get updated
+sudo docker stop nextcloud
+sudo docker pull rootlogin/nextcloud
+sudo docker container rm nextcloud
+sudo docker run -d --name nextcloud --restart unless-stopped -p 80:80 -v /home/kluis/nclouddata:/data rootlogin/nextcloud
+sudo docker start nextcloud
+
+echo Plex, Deluge and htpcmanager should update automaticly after a restart of their docker
+echo containers. So less talking, more restarting!
+
+sudo docker restart plex
+sudo docker restart deluge
+sudo docker restart htpcmanager
+
+echo sonarr should update automaticly, otherwise check sonarrs settings. But lets do a restart to be sure
+sudo docker restart sonarr
+
+echo Everything sould be updated right now! Yeah!

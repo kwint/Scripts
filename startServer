@@ -1,0 +1,12 @@
+#!/bin/bash
+
+sudo docker start plex
+sudo docker start plexpy
+sudo docker start sonarr
+sudo docker start deluge
+sudo docker start nextcloud
+sudo docker start htpcmanager
+sudo docker start jackett
+sudo docker start radarr
+sudo docker start ombi
+echo Done

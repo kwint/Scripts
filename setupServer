@@ -1,0 +1,172 @@
+#!/bin/bash
+echo Lets setup a servertje!
+
+echo Installing docker
+sudo apt-get update
+sudo apt-get install curl
+sudo apt-get install curl linux-image-extra-$(uname -r) linux-image-extra-virtual
+sudo apt-get install apt-transport-https \
+                       ca-certificates
+curl -fsSL https://yum.dockerproject.org/gpg | sudo apt-key add -
+
+sudo apt-get install software-properties-common
+sudo add-apt-repository \
+       "deb https://apt.dockerproject.org/repo/ \
+         ubuntu-$(lsb_release -cs) \
+         main"
+
+sudo apt-get update
+sudo apt-get -y install docker-engine
+echo Docker is installed
+
+echo Create folders
+cd ~
+mkdir plex
+mkdir nclouddata
+cd plex
+mkdir config
+mkdir data
+mkdir transcode
+mkdir sonarrconfig
+mkdir radarrconfig
+mkdir jackettconfig
+mkdir delugeconfig
+mkdir htpcmanagerconfig
+mkdir download
+mkdir plexpyconfig
+mkdir ombiconfig
+mkdir plexpylogs
+cd data
+mkdir tv
+mkdir movies
+cd ~
+echo Poef! Created folders
+
+echo Install plex
+
+sudo docker create \
+--name=plex \
+--net=host \
+-e VERSION=latest \
+-e PUID=1000 -e PGID=1000 \
+-e TZ=Europe/Amsterdam \
+-v ~/plex/config:/config \
+-v ~/plex/data/tv:/data/tvshows \
+-v ~/plex/data/movies:/data/movies \
+-v ~/plex/transcode:/transcode \
+linuxserver/plex
+
+echo Plex installed. Starting plex
+
+sudo docker start plex
+
+echo Installing Sonarr
+
+sudo docker create \
+    --name sonarr \
+    -p 8989:8989 \
+    -e PUID=1000 -e PGID=1000 \
+    -v /dev/rtc:/dev/rtc:ro \
+    -v ~/plex/sonarrconfig:/config \
+    -v ~/plex/data/tv:/tv \
+    -v ~/plex/download:/downloads \
+    linuxserver/sonarr
+
+echo Sonarr installed. Starting sonarr
+
+sudo docker start sonarr
+
+echo installing radarr
+
+docker create \
+  --name=radarr \
+    -v ~/plex/radarrconfig:/config \
+    -v ~/plex/download:/downloads \
+    -v ~/plex/data/movies:/movies \
+    -e PGID=1000 -e PUID=1000  \
+    -e TZ=Europe/Amsterdam \
+    -p 7878:7878 \
+  linuxserver/radarr
+echo starting radarr
+
+sudo docker start radarr
+
+echo installing Jackett
+
+docker create --name=jackett \
+-v ~/plex/jackettconfig:/config \
+-v ~/plex/downloads:/downloads \
+-e PGID=1000 -e PUID=1000 \
+-e TZ=Europe/Amsterdam \
+-p 9117:9117 \
+linuxserver/jackett
+
+sudo docker start jackett
+
+
+echo Installing deluge
+
+sudo docker create \
+    --name deluge \
+    --net=host \
+    -e PUID=1000 -e PGID=1000 \
+    -e TZ=Europe/Amsterdam \
+    -v ~/plex/download:/downloads \
+    -v ~/plex/delugeconfig:/config \
+    linuxserver/deluge
+
+echo Deluge installed. Starting Deluge
+
+sudo docker start deluge
+
+echo Installing nextcloud
+sudo docker pull rootlogin/nextcloud
+sudo docker run -d --name nextcloud -p 80:80 -v /home/kluis/nclouddata:/data rootlogin/nextcloud
+echo Starting nextcloud, to be sure
+sudo docker start nextcloud
+
+echo Installing htpcmanager
+sudo docker create --name=htpcmanager \
+     -v ~/plex/htpcmanagerconfig:/config \
+     -e PGID=1000 -e PUID=1000 \
+     -e TZ=Europe/Amsterdam \
+     -p 8085:8085 \
+     linuxserver/htpcmanager
+
+echo htpcmanager installed. Starting it
+
+sudo docker start htpcmanager
+
+echo Installing plexpy
+docker create \
+  --name=plexpy \
+  -v ~/plex/plexpyconfig:/config \
+  -v ~/plex/plexpylogs:/logs:ro \
+  -e PGID=1000 -e PUID=1000  \
+  -e TZ=Europe/Amsterdam \
+  -p 8181:8181 \
+  linuxserver/plexpy
+echo plexpy installed. Starting it
+sudo docker start plexpy
+
+echo installing ombi
+docker create \
+    --name=ombi \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v ~plex/ombiconfig:/config \
+    -e PGID=1000 -e PUID=1000  \
+    -e TZ=Europe/Amsterdam \
+    -p 3579:3579 \
+    linuxserver/ombi
+
+sudo docker start ombi
+echo installed and started ombi
+
+echo configure plex with port: 32400
+echo configure sonarr with port: 8989
+echo configure deluge with port: 8112
+echo configure htpcmanager with port: 8085 
+echo configure nextcloud via localhost
+
+echo gg wp 
+
