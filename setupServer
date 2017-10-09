@@ -54,6 +54,7 @@ sudo docker create \
 -v ~/plex/data/tv:/data/tvshows \
 -v ~/plex/data/movies:/data/movies \
 -v ~/plex/transcode:/transcode \
+--restart unless-stopped \
 linuxserver/plex
 
 echo Plex installed. Starting plex
@@ -70,6 +71,7 @@ sudo docker create \
     -v ~/plex/sonarrconfig:/config \
     -v ~/plex/data/tv:/tv \
     -v ~/plex/download:/downloads \
+    --restart unless-stopped \
     linuxserver/sonarr
 
 echo Sonarr installed. Starting sonarr
@@ -86,6 +88,7 @@ docker create \
     -e PGID=1000 -e PUID=1000  \
     -e TZ=Europe/Amsterdam \
     -p 7878:7878 \
+    --restart unless-stopped \
   linuxserver/radarr
 echo starting radarr
 
@@ -99,6 +102,7 @@ docker create --name=jackett \
 -e PGID=1000 -e PUID=1000 \
 -e TZ=Europe/Amsterdam \
 -p 9117:9117 \
+--restart unless-stopped \
 linuxserver/jackett
 
 sudo docker start jackett
@@ -113,6 +117,7 @@ sudo docker create \
     -e TZ=Europe/Amsterdam \
     -v ~/plex/download:/downloads \
     -v ~/plex/delugeconfig:/config \
+    --restart unless-stopped \
     linuxserver/deluge
 
 echo Deluge installed. Starting Deluge
@@ -121,7 +126,7 @@ sudo docker start deluge
 
 echo Installing nextcloud
 sudo docker pull rootlogin/nextcloud
-sudo docker run -d --name nextcloud -p 80:80 -v /home/kluis/nclouddata:/data rootlogin/nextcloud
+sudo docker run -d --name nextcloud --restart unless-stopped -p 80:80 -v /home/kluis/nclouddata:/data rootlogin/nextcloud
 echo Starting nextcloud, to be sure
 sudo docker start nextcloud
 
@@ -131,6 +136,7 @@ sudo docker create --name=htpcmanager \
      -e PGID=1000 -e PUID=1000 \
      -e TZ=Europe/Amsterdam \
      -p 8085:8085 \
+     --restart unless-stopped \
      linuxserver/htpcmanager
 
 echo htpcmanager installed. Starting it
@@ -145,6 +151,7 @@ docker create \
   -e PGID=1000 -e PUID=1000  \
   -e TZ=Europe/Amsterdam \
   -p 8181:8181 \
+  --restart unless-stopped \
   linuxserver/plexpy
 echo plexpy installed. Starting it
 sudo docker start plexpy
@@ -157,16 +164,12 @@ docker create \
     -e PGID=1000 -e PUID=1000  \
     -e TZ=Europe/Amsterdam \
     -p 3579:3579 \
+    --restart unless-stopped \
     linuxserver/ombi
 
 sudo docker start ombi
 echo installed and started ombi
 
-echo configure plex with port: 32400
-echo configure sonarr with port: 8989
-echo configure deluge with port: 8112
-echo configure htpcmanager with port: 8085 
-echo configure nextcloud via localhost
 
 echo gg wp 
 
