@@ -20,7 +20,8 @@ sudo docker restart plex
 sudo docker restart deluge
 sudo docker restart htpcmanager
 
-echo sonarr should update automaticly, otherwise check sonarrs settings. But lets do a restart to be sure
+echo sonarr and radarr should update automaticly, otherwise check sonarrs settings. But lets do a restart to be sure
 sudo docker restart sonarr
+sudo docker restart radarr
 
 echo Everything sould be updated right now! Yeah!
