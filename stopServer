@@ -1,6 +1,0 @@
-#!/bin/bash
-sudo docker stop plex
-sudo docker stop sonarr
-sudo docker stop deluge
-sudo docker stop nextcloud
-echo done
